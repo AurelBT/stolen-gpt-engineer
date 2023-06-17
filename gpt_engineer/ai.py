@@ -1,17 +1,11 @@
-import openai
-
+from StolenGPT import StolenGPT
 
 class AI:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
-
-        try:
-            openai.Model.retrieve("gpt-4")
-        except openai.error.InvalidRequestError:
-            print("Model gpt-4 not available for provided api key reverting "
-                  "to gpt-3.5.turbo. Sign up for the gpt-4 wait list here: "
-                  "https://openai.com/waitlist/gpt-4-api")
-            self.kwargs['model'] = "gpt-3.5-turbo"
+        self.kwargs['model'] = "gpt-3.5-turbo"
+        self.stl = StolenGPT()
+        self.lastm = []
 
     def start(self, system, user):
         messages = [
@@ -31,14 +25,11 @@ class AI:
         if prompt:
             messages = messages + [{"role": "user", "content": prompt}]
 
-        response = openai.ChatCompletion.create(
-            messages=messages, stream=True, **self.kwargs
-        )
+        msg2send = [i for i in messages if not i in self.lastm]
+        ai_response = ""
+        for i in msg2send:
+            ai_response = self.stl.chat(i["content"])
 
-        chat = []
-        for chunk in response:
-            delta = chunk["choices"][0]["delta"]
-            msg = delta.get("content", "")
-            print(msg, end="")
-            chat.append(msg)
-        return messages + [{"role": "assistant", "content": "".join(chat)}]
+        print(ai_response.replace("\\n", "\n").replace('\\"', '"').replace("\\'", "'").replace("\\t", "\t"))
+        self.lastm = messages + [{"role": "assistant", "content": ai_response}]
+        return self.lastm

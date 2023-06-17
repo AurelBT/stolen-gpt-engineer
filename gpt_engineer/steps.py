@@ -43,7 +43,7 @@ def clarify(ai: AI, dbs: DBs):
             'Is anything else unclear? If yes, only answer in the form:\n'
             '{remaining unclear areas} remaining questions.\n'
             '{Next question}\n'
-            'If everything is sufficiently clear, only answer "no".'
+            'If everything is sufficiently clear, only answer no.'
         )
 
     print()
